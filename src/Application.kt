@@ -3,8 +3,10 @@ package com.raywenderlich
 import com.raywenderlich.api.*
 import com.raywenderlich.repository.*
 import com.raywenderlich.webapp.*
+import freemarker.cache.*
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.freemarker.*
 import io.ktor.gson.*
 import io.ktor.http.*
 import io.ktor.response.*
@@ -30,19 +32,23 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
+    install(FreeMarker) {
+        templateLoader = ClassTemplateLoader(this::class.java.classLoader, "templates")
+    }
+
     val db = InMemoryRepository()
 
     routing {
         home()
         about()
+        phrases(db)
 
         //API
         phrase(db)
+
     }
-
-
 }
 
-// Next up, start lesson 7
+// Next up, start lesson 10
 
 const val API_VERSION = "/api/v1"
