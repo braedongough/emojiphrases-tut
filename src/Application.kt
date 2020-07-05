@@ -1,14 +1,18 @@
 package com.raywenderlich
 
 import com.raywenderlich.api.*
+import com.raywenderlich.model.*
 import com.raywenderlich.repository.*
 import com.raywenderlich.webapp.*
 import freemarker.cache.*
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.features.*
 import io.ktor.freemarker.*
 import io.ktor.gson.*
 import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.locations.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
@@ -36,9 +40,23 @@ fun Application.module(testing: Boolean = false) {
         templateLoader = ClassTemplateLoader(this::class.java.classLoader, "templates")
     }
 
+    install(Authentication) {
+        basic(name = "auth") {
+            realm = "ktor server"
+            validate { credentials ->
+                if (credentials.password == "${credentials.name}123") User(credentials.name) else null
+            }
+        }
+    }
+
+    install(Locations)
+
     val db = InMemoryRepository()
 
     routing {
+        static("/static") {
+            resources("images")
+        }
         home()
         about()
         phrases(db)
@@ -49,6 +67,10 @@ fun Application.module(testing: Boolean = false) {
     }
 }
 
-// Next up, start lesson 10
-
 const val API_VERSION = "/api/v1"
+
+// todo: Lesson 19
+
+suspend fun ApplicationCall.redirect(location: Any) {
+    respondRedirect(application.locations.href(location))
+}
