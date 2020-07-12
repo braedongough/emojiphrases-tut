@@ -13,7 +13,7 @@ const val PHRASE_ENDPOINT = "$API_VERSION/phrase"
 fun Route.phrase(db: Repository) {
     post(PHRASE_ENDPOINT) {
         val request = call.receive<Request>()
-        val phrase = db.add(EmojiPhrase(request.emoji, request.phrase))
+        val phrase = db.add("", request.emoji, request.phrase)
 
         call.respond(phrase)
     }
